@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shapes</title>
+    <style>
+        main{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    
+</head>
+<body>
+    <center>
+        <h2>Mueve el circulo usando las flechas direccionales ⬅️⬆️➡️⬇️</h2>
+    </center>
+    <main>
+        <canvas id="game"></canvas>
+    </main>
+
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        const game = new MAGMA2D("game",640,360);
+        const background = new Rect(0,0,"#000000",640,360);
+        const box = new Circle(200,200,"#e74c3c",50,50);
+        const shape = new Shape();
+
+        const triangle = shape.Triangle({x:350,y:150,size:80,color:'#f0f0f0'});
+        const cube = shape.Rect({x:50,y:250,height:50, width:50,color:'#67FF53'});
+
+        game.addObject(background);
+        game.addObject(triangle);
+        game.addObject(box);
+        game.addObject(cube);
+        
+        game.keyboardListener('ArrowRight',()=>{
+            box.x += 5;
+        });
+        game.keyboardListener('ArrowLeft',()=>{
+            box.x -= 5;
+        });
+        game.keyboardListener('ArrowUp',()=>{
+            box.y -= 5;
+        });
+        game.keyboardListener('ArrowDown',()=>{
+            box.y += 5;
+        });
+
+        game.start();
+    </script>
+</body>
+</html>

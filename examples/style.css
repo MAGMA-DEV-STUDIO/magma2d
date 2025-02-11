@@ -1,0 +1,68 @@
+*{
+    font-family: "Pixelify Sans", serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to right bottom, #0b1729, #11172b, #17172d, #1d162e, #24152e);
+    overflow-x: hidden;
+}
+.center{
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #eee;
+    font-size: 2rem;
+    text-shadow: 3px 3px 0px #646464;
+}
+ul{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    padding: 10px;
+    gap: 1rem;
+    width: 100%;
+    list-style: none;
+}
+.project-card {
+    max-width: 400px;
+    margin: 20px auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    background: white;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+
+.project-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 3px solid #eee;
+}
+
+.project-content {
+    padding: 20px;
+}
+
+.project-title {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.project-description {
+    margin: 0;
+    color: #666;
+    line-height: 1.5;
+}
