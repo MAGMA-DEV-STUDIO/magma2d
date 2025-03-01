@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D Music Player Example</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container{
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize the game engine
+        const game = new MAGMA2D('gameCanvas', 800, 200);
+        const shapes = new Shape();
+
+        // Create music player
+        const music = new Sound('./assets/music.mp3');
+        let isPlaying = false;
+
+        const bg = shapes.Rect({
+            x: 0,
+            y: 0,
+            width: 800,
+            height: 200,
+            color: '#30313C'
+        });
+        
+        // Create play button (adjusted position)
+        const playButton = shapes.Triangle({
+            x: 380,
+            y: 100,
+            color: 'green',
+            size: 30
+        });
+
+        // Create stop button (adjusted position)
+        const stopButton = shapes.Rect({
+            x: 430,
+            y: 70,
+            width: 40,
+            height: 40,
+            color: 'red'
+        });
+
+        // Create title text (adjusted color)
+        const titleText = new TextObject({
+            x: 400,
+            y: 40,
+            text: 'MAGMA2D Music Player',
+            font: '24px Arial',
+            fillStyle: '#FFFFFF',
+            textAlign: 'center'
+        });
+
+        // Create instruction text (adjusted position and color)
+        const instructionText = new TextObject({
+            x: 400,
+            y: 160,
+            text: 'Click on Space to play/pause, square to stop',
+            font: '16px Arial',
+            fillStyle: '#FFFFFF',
+            textAlign: 'center'
+        });
+
+        // Add keyboard controls
+        game.keyboardListener('Space', () => {
+            if (isPlaying) {
+                music.stop();
+                playButton.color = 'green';
+            } else {
+                music.play();
+                playButton.color = 'yellow';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        game.keyboardListener('s', () => {
+            music.stop();
+            isPlaying = false;
+            playButton.color = 'green';
+        });
+
+        // Add objects to the game
+        game.addObject(bg);
+        game.addObject(playButton);
+        game.addObject(stopButton);
+        game.addObject(titleText);
+        game.addObject(instructionText);
+
+        // Start the game loop
+        game.start();
+    </script>
+</body>
+</html>

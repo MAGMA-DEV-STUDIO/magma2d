@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D - Text Input Example</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Text Input Example</h1>
+        <canvas id="gameCanvas"></canvas>
+        <p>Type any key to see it appear on screen. Use arrow keys to move the text!</p>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize game engine
+        const game = new MAGMA2D('gameCanvas', 800, 600);
+
+        // Create main text display
+        const mainText = new TextObject(400, 300, 'Type something...', '24px Arial', 'blue', 'center');
+        game.addObject(mainText);
+
+        // Create instruction text
+        const instructionText = new TextObject(400, 400, 'Use arrow keys to move the text', '16px Arial', 'gray', 'center');
+        game.addObject(instructionText);
+
+        // Add keyboard listeners for movement
+        game.keyboardListener('ArrowRight', () => { mainText.x += 5; });
+        game.keyboardListener('ArrowLeft', () => { mainText.x -= 5; });
+        game.keyboardListener('ArrowUp', () => { mainText.y -= 5; });
+        game.keyboardListener('ArrowDown', () => { mainText.y += 5; });
+
+        // Add keyboard input handling
+        window.addEventListener('keypress', (e) => {
+            if (e.key.length === 1) { // Only single characters
+                mainText.text = e.key;
+            }
+        });
+
+        // Start the game
+        game.start();
+    </script>
+</body>
+</html>

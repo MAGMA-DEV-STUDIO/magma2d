@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D - Flappy Bird Example</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container{
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        h1, p {
+            color: whitesmoke;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flappy Bird Example</h1>
+        <canvas id="gameCanvas"></canvas>
+        <p>Press SPACE to make the bird jump!</p>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize game engine
+        const game = new MAGMA2D('gameCanvas', 800, 600);
+
+        // Game state
+        let gameInit = false;
+        let score = 0;
+        let gameOver = false;
+        let gravity = 0.5;
+        let velocity = 0;
+
+        // Create bird
+        const bird = new Sprite(100,50,'./assets/bird.png', 100, 100);
+        const bg = new Rect(0, 0, '#70C5CD', 800, 600);
+        const floor = new Rect(0, 550, '#DED895', 800, 50);
+        game.addObject(bg);
+        game.addObject(floor);
+        game.addObject(bird);
+
+        // Create score display
+        const scoreText = new TextObject({x: 10, y: 30, text: 'Score: 0', fillStyle: '#ffffff'});
+        game.addObject(scoreText);
+
+        // Create game over text
+        const gameOverText = new TextObject({x: 400, y: 300, text: 'Game Over!', font: '48px Arial', fillStyle: '#ffffff', textAlign: 'center'});
+
+        // Create pipes
+        class Pipe {
+            constructor(x, gapY) {
+                this.topPipe = new Rect(x, 0, '#32CD32', 50, gapY);
+                this.bottomPipe = new Rect(x, gapY + 250, '#32CD32', 50, 600 - (gapY + 150));
+                this.passed = false;
+                game.addObject(this.topPipe);
+                game.addObject(this.bottomPipe);
+            }
+
+            move() {
+                this.topPipe.x -= 2;
+                this.bottomPipe.x -= 2;
+            }
+
+            checkCollision(bird) {
+                if(checkCollision(bird, this.topPipe) || checkCollision(bird, this.bottomPipe) ){
+                    console.log(bird, this.topPipe, this.bottomPipe);
+                    return true;
+                }
+            }
+
+            isOffscreen() {
+                return this.topPipe.x + this.topPipe.width < 0;
+            }
+
+            remove() {
+                game.removeObject(this.topPipe);
+                game.removeObject(this.bottomPipe);
+            }
+        }
+
+        let pipes = [];
+        let pipeSpawnTimer = 0;
+
+        // Jump control
+        game.keyboardListener('Space', () => {
+            gameInit = true;
+            if (gameOver) {
+                resetGame();
+                return;
+            }
+            velocity = -5;
+        });
+
+        function resetGame() {
+            gameInit=false;
+            gameOver = false;
+            score = 0;
+            scoreText.text = 'Score: 0';
+            bird.y = 300;
+            velocity = 0;
+            
+            // Remove all pipes
+            pipes.forEach(pipe => pipe.remove());
+            pipes = [];
+            
+            // Remove game over text
+            game.removeObject(gameOverText);
+        }
+
+        // Modify game loop
+        const originalGameLoop = game.gameLoop;
+        game.gameLoop = function() {
+            if (!gameOver && gameInit) {
+                // Apply gravity to bird
+                velocity += gravity;
+                bird.y += velocity;
+
+                // Spawn pipes
+                pipeSpawnTimer++;
+                if (pipeSpawnTimer >= 100) {
+                    const gapY = Math.random() * 300 + 50;
+                    pipes.push(new Pipe(800, gapY));
+                    pipeSpawnTimer = 0;
+                }
+
+                // Update pipes
+                pipes.forEach((pipe, index) => {
+                    pipe.move();
+
+                    // Check for scoring
+                    if (!pipe.passed && pipe.topPipe.x + pipe.topPipe.width < bird.x) {
+                        score++;
+                        scoreText.text = `Score: ${score}`;
+                        pipe.passed = true;
+                    }
+
+                    // Check for collisions
+                    if (pipe.checkCollision(bird)) {
+                        gameOver = true;
+                        game.addObject(gameOverText);
+                    }
+
+                    // Remove offscreen pipes
+                    if (pipe.isOffscreen()) {
+                        pipe.remove();
+                        pipes.splice(index, 1);
+                    }
+                });
+
+                // Check boundaries
+                if (bird.y < 0 || bird.y > 600) {
+                    gameOver = true;
+                    game.addObject(gameOverText);
+                }
+            }
+
+            originalGameLoop.call(game);
+        };
+
+        // Start the game
+        game.start();
+    </script>
+</body>
+</html>
