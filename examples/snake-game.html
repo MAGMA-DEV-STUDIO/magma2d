@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D - Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        h1, p {
+            color: whitesmoke;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snake Game</h1>
+        <canvas id="gameCanvas"></canvas>
+        <p>Use arrow keys to control the snake. Eat the red food to grow!</p>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize game engine
+        const game = new MAGMA2D('gameCanvas', 600, 600);
+        const shapes = new Shape();
+
+        // Game settings
+        const gridSize = 20;
+        const gridWidth = 600 / gridSize;
+        const gridHeight = 600 / gridSize;
+        let score = 0;
+        let gameOver = false;
+
+        // Snake initial state
+        let snake = [
+            { x: 15, y: 15 } // Head
+        ];
+        let direction = { x: 0, y: 0 };
+        let food = null;
+
+        // Create background
+        const background = shapes.Rect({
+            x: 0,
+            y: 0,
+            width: 600,
+            height: 600,
+            color: '#2C3E50'
+        });
+
+        // Create score text
+        const scoreText = new TextObject({
+            x: 50,
+            y: 30,
+            text: 'Score: 0',
+            font: '20px Arial',
+            fillStyle: '#FFFFFF',
+            textAlign: 'left'
+        });
+
+        // Create game over text
+        const gameOverText = new TextObject({
+            x: 300,
+            y: 300,
+            text: 'Game Over! Press Space to restart',
+            font: '24px Arial',
+            fillStyle: '#E74C3C',
+            textAlign: 'center'
+        });
+        gameOverText.visible = false;
+
+        // Function to create food at random position
+        function createFood() {
+            const x = Math.floor(Math.random() * gridWidth);
+            const y = Math.floor(Math.random() * gridHeight);
+            food = shapes.Rect({
+                x: x * gridSize,
+                y: y * gridSize,
+                width: gridSize - 2,
+                height: gridSize - 2,
+                color: '#E74C3C'
+            });
+            game.addObject(food);
+        }
+
+        // Function to update snake
+        function updateSnake() {
+            if (gameOver) return;
+
+            // Move snake
+            const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+            // Check wall collision
+            if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
+                gameOver = true;
+                gameOverText.visible = true;
+                return;
+            }
+
+            // Check self collision
+            for (let i = 0; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    gameOver = true;
+                    gameOverText.visible = true;
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            // Check food collision
+            if (head.x === Math.floor(food.x / gridSize) && head.y === Math.floor(food.y / gridSize)) {
+                score += 10;
+                scoreText.text = `Score: ${score}`;
+                game.removeObject(food);
+                createFood();
+            } else {
+                snake.pop();
+            }
+
+            // Update snake visuals
+            game.objects = game.objects.filter(obj => obj.type !== 'snake');
+            snake.forEach((segment, index) => {
+                const snakeSegment = shapes.Rect({
+                    x: segment.x * gridSize,
+                    y: segment.y * gridSize,
+                    width: gridSize - 2,
+                    height: gridSize - 2,
+                    color: index === 0 ? '#2ECC71' : '#27AE60',
+                    type: 'snake'
+                });
+                game.addObject(snakeSegment);
+            });
+        }
+
+        // Add keyboard controls
+        game.keyboardListener('ArrowRight', () => {
+            if (direction.x === 0) {
+                direction = { x: 1, y: 0 };
+            }
+        });
+
+        game.keyboardListener('ArrowLeft', () => {
+            if (direction.x === 0) {
+                direction = { x: -1, y: 0 };
+            }
+        });
+
+        game.keyboardListener('ArrowUp', () => {
+            if (direction.y === 0) {
+                direction = { x: 0, y: -1 };
+            }
+        });
+
+        game.keyboardListener('ArrowDown', () => {
+            if (direction.y === 0) {
+                direction = { x: 0, y: 1 };
+            }
+        });
+
+        // Reset game
+        game.keyboardListener('Space', () => {
+            if (gameOver) {
+                snake = [{ x: 15, y: 15 }];
+                direction = { x: 0, y: 0 };
+                score = 0;
+                scoreText.text = 'Score: 0';
+                gameOver = false;
+                gameOverText.visible = false;
+                game.removeObject(food);
+                createFood();
+            }
+        });
+
+        // Add objects to game
+        game.addObject(background);
+        game.addObject(scoreText);
+        game.addObject(gameOverText);
+        createFood();
+
+        // Game loop
+        setInterval(updateSnake, 100);
+
+        // Start game
+        game.start();
+    </script>
+</body>
+</html>
