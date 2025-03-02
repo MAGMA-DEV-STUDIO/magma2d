@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D - Sprite Animation Example</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sprite Animation Example</h1>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize game engine
+        const game = new MAGMA2D('gameCanvas', 800, 600);
+
+        // Create image preloader
+        const preloader = new ImagePreloader();
+
+        // Create animated sprite
+        preloader.preload(['assets/shape.png']).then(() => {
+            const sprite = new Sprite(350, 250, 'assets/shape.png', 100, 100, preloader);
+            game.addObject(sprite);
+
+            // Add movement controls
+            game.keyboardListener('ArrowRight', () => { sprite.x += 5; });
+            game.keyboardListener('ArrowLeft', () => { sprite.x -= 5; });
+            game.keyboardListener('ArrowUp', () => { sprite.y -= 5; });
+            game.keyboardListener('ArrowDown', () => { sprite.y += 5; });
+
+            // Start the game
+            game.start();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGMA2D - Collision Game Example</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        h1,p{
+            color: whitesmoke;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Collision Game Example</h1>
+        <canvas id="gameCanvas"></canvas>
+        <p>Use arrow keys to move the blue square. Collect green squares to score points!</p>
+    </div>
+    <script src="../lib/magma2d.js"></script>
+    <script>
+        // Initialize game engine
+        const game = new MAGMA2D('gameCanvas', 800, 600);
+
+        // Create player
+        const player = new Rect(100, 100, 'blue', 50, 50);
+        game.addObject(player);
+
+        // Create score display
+        let score = 0;
+        const scoreText = new TextObject({x:10, y:30, text:'Score: 0',fillStyle:'#ffffff'});
+        game.addObject(scoreText);
+
+        // Create collectible
+        function createCollectible() {
+            const x = Math.random() * 700;
+            const y = Math.random() * 500;
+            const collectible = new Rect(x, y, 'green', 30, 30);
+            game.addObject(collectible);
+            return collectible;
+        }
+
+        let currentCollectible = createCollectible();
+
+        // Add movement controls
+        game.keyboardListener('ArrowRight', () => { player.x += 5; });
+        game.keyboardListener('ArrowLeft', () => { player.x -= 5; });
+        game.keyboardListener('ArrowUp', () => { player.y -= 5; });
+        game.keyboardListener('ArrowDown', () => { player.y += 5; });
+
+        // Check for collisions in game loop
+        const originalGameLoop = game.gameLoop;
+        game.gameLoop = function() {
+            if (checkCollision(player, currentCollectible)) {
+                game.removeObject(currentCollectible);
+                score += 10;
+                scoreText.text = `Score: ${score}`;
+                currentCollectible = createCollectible();
+            }
+            originalGameLoop.call(game);
+        };
+
+        // Start the game
+        game.start();
+    </script>
+</body>
+</html>
